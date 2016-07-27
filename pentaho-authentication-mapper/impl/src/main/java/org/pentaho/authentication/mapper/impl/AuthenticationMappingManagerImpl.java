@@ -22,17 +22,6 @@
 
 package org.pentaho.authentication.mapper.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.SortedSetMultimap;
-import org.pentaho.authentication.mapper.api.AuthenticationMappingManager;
-import org.pentaho.authentication.mapper.api.AuthenticationMappingService;
-import org.pentaho.authentication.mapper.api.MappingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Comparator;
@@ -41,6 +30,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
+
+import org.pentaho.authentication.mapper.api.AuthenticationMappingManager;
+import org.pentaho.authentication.mapper.api.AuthenticationMappingService;
+import org.pentaho.authentication.mapper.api.MappingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.SortedSetMultimap;
 
 /**
  * @author bryan
@@ -54,11 +55,11 @@ public class AuthenticationMappingManagerImpl implements AuthenticationMappingMa
   private final SortedSetMultimap<TypePair, RankedAuthService> serviceMap = Multimaps.synchronizedSortedSetMultimap(
     Multimaps.newSortedSetMultimap( new HashMap<>(), TreeSet::new )
   );
-  private final File configuration;
+  //private final File configuration;
 
   public AuthenticationMappingManagerImpl() throws IOException {
     String parent = Objects.requireNonNull( System.getProperty( "karaf.etc" ), "karaf.etc property not defined" );
-    configuration = new File( parent, CONFIG_FILE_NAME );
+   // configuration = new File( parent, CONFIG_FILE_NAME );
   }
 
   @Override
@@ -74,23 +75,23 @@ public class AuthenticationMappingManagerImpl implements AuthenticationMappingMa
         .orElse( null );
     }
 
-    return service != null ? service.getMapping( input, getConfigMap( service.getId() ) ) : null;
+    return service != null ? service.getMapping( input, null ) : null;
   }
 
-  private Map<String, Object> getConfigMap( String id ) throws MappingException {
-    try {
-      Map<String, Map<String, Object>> configMap = ImmutableMap.of();
-      if ( configuration.exists() ) {
-        configMap = objectMapper.readValue( configuration, CONFIG_TYPE );
-      } else {
-        LOGGER.debug( "Authentication mapping file does not exist:  " + configuration.getAbsolutePath() );
-      }
-      return Optional.ofNullable( configMap.get( id ) ).orElse( ImmutableMap.of() );
-    } catch ( IOException e ) {
-      throw new MappingException( "We weren't able to read or find the file " + configuration.getAbsolutePath()
-          + ".", e );
-    }
-  }
+//  private Map<String, Object> getConfigMap( String id ) throws MappingException {
+//    try {
+//      Map<String, Map<String, Object>> configMap = ImmutableMap.of();
+//      if ( configuration.exists() ) {
+//        configMap = objectMapper.readValue( configuration, CONFIG_TYPE );
+//      } else {
+//        LOGGER.debug( "Authentication mapping file does not exist:  " + configuration.getAbsolutePath() );
+//      }
+//      return Optional.ofNullable( configMap.get( id ) ).orElse( ImmutableMap.of() );
+//    } catch ( IOException e ) {
+//      throw new MappingException( "We weren't able to read or find the file " + configuration.getAbsolutePath()
+//          + ".", e );
+//    }
+//  }
 
   public void onMappingServiceAdded( AuthenticationMappingService service, Map config ) {
     if ( service == null ) {
